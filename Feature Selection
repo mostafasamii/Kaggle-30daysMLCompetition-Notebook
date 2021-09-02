@@ -1,0 +1,20 @@
+#Feature selection using BorutaPy
+from boruta import BorutaPy
+
+#rf the model you want to work with
+rf = RandomForestClassifier(n_jobs=M, class_weight='balanced', max_depth=N)
+
+# define Boruta feature selection method
+feat_selector = BorutaPy(rf, n_estimators='auto', verbose=X, random_state=Y)
+
+# find all relevant features - 5 features should be selected
+feat_selector.fit(X, y)
+
+# check selected features - first 5 features are selected
+feat_selector.support_
+
+# check ranking of features
+feat_selector.ranking_
+
+# call transform() on X to filter it down to selected features
+X_filtered = feat_selector.transform(X)
