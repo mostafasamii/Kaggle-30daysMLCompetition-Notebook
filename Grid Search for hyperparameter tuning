@@ -1,0 +1,24 @@
+parameters = {
+    "n_estimators": [5, 10, 15, 20, 25, 50, 75, 100], 
+    "learning_rate": [0.001, 0.01, 0.1, 1.],
+}
+
+model_adaboost = AdaBoostClassifier()
+
+model_adaboost = GridSearchCV(
+    model_adaboost, 
+    parameters, 
+    cv=5,
+    scoring='accuracy', #minimize
+)
+
+model_adaboost.fit(X_train, y_train)
+
+print('-----')
+print(f'Best parameters {model_adaboost.best_params_}')
+print(
+    f'Mean cross-validated accuracy score of the best_estimator: '+ \
+    f'{model_adaboost.best_score_:.3f}'
+)
+cross_valid_scores['ada_boost'] = model_adaboost.best_score_
+print('-----')
