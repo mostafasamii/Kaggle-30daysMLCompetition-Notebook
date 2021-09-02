@@ -1,0 +1,61 @@
+#Remove the outliers
+mean = train['target'].mean()
+std = train['target'].std()
+cut_off = std * 3
+lower, upper = mean - cut_off, mean + cut_off
+outliers = train[(train['target'] < lower) | (train['target'] > upper)]
+print(f"Orginal Dataset size: {train.shape}")
+train.drop(outliers.index.to_list(), inplace=True)
+print(f"Number of outliers: {len(outliers)}")
+
+#-------------------------------------------------------------
+
+# Apply Target encoding
+MEE_encoder = MEstimateEncoder(sigma=0.04, m=5.0, randomized= True)
+label_features[object_cols] = MEE_encoder.fit_transform(label_features[object_cols], target)
+label_test[object_cols] = MEE_encoder.transform(label_test[object_cols])
+
+#-------------------------------------------------------------
+
+Apply label encoder
+label = LabelEncoder()
+#label_features[object_cols] = label.fit_transform(label_features[object_cols])
+#label_test[object_cols] = label.transform(test[object_cols])
+label_features[object_cols] = label_features[object_cols].apply(label.fit_transform)
+label_test[object_cols] = label_test[object_cols].apply(label.fit_transform)
+
+#-------------------------------------------------------------
+
+# Apply Standard Scaler
+StandScaler = StandardScaler()
+label_features[num_cols] = StandScaler.fit_transform(label_features[num_cols])
+label_test[num_cols] = StandScaler.transform(test[num_cols])
+
+#-------------------------------------------------------------
+
+# Apply Ordinal encoder
+ordinal_encoder = OrdinalEncoder()
+label_features[object_cols] = ordinal_encoder.fit_transform(label_features[object_cols])
+label_test[object_cols] = ordinal_encoder.transform(test[object_cols])
+
+#-------------------------------------------------------------
+
+#Apply Normalization on all columns of training data and test data
+# Normalization for training features
+std_train = label_features.max() -  label_features.min()
+label_features = (label_features - label_features.min()) / std_train
+# Normalization for testing data
+std_test = label_test.max() -  label_test.min()
+label_test = (label_test - label_test.min()) / std_test
+
+#-------------------------------------------------------------
+
+# Setting up fold parameters
+splits = N
+kf = KFold(n_splits=N, shuffle=True, random_state=0)
+#Generating folds and making training and prediction for each of N folds
+for train_index, test_index in kf.split(label_features, target):
+    X_train, X_valid = label_features.iloc[list(train_index)], label_features.iloc[list(test_index)]
+    y_train, y_valid = target.iloc[list(train_index)], target.iloc[list(test_index)]
+
+#-------------------------------------------------------------
