@@ -1,0 +1,18 @@
+#estimators hold your models level0 
+estimators = [
+    ('xgb1', XGB_model_1),
+    ('xgb2', XGB_model_2),
+    ('xgb3', XGB_model_3)
+]
+
+#final estimator holds your level1 model
+reg = StackingRegressor(
+    estimators=estimators,
+    final_estimator= Lasso(alpha=0.0001,
+                           precompute=True,
+                           max_iter=7000,
+                           positive=True,
+                           #random_state=40,
+                           fit_intercept=True))
+reg.fit(X_train, y_train)
+predictions = reg.predict("testdata")
