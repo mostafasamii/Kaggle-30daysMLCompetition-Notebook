@@ -1,0 +1,15 @@
+vote_regressor = VotingRegressor([('xgboost', XGB_model), ('lightGBM', lgbm_model), ('catboost',Catboost_model)], 
+                        weights=[0.6,0.35,0.05])
+
+cv_results = cross_val_score(vote_regressor, X_train, y_train, cv=5, scoring='neg_mean_squared_error')
+np.sqrt(np.abs(cv_results.mean()))
+
+vote_regressor2 = VotingRegressor([('xgboost', XGB_model), 
+                                  ('lightGBM', lgbm_model), 
+                                  ('voting_regression',vote_regressor)], 
+                        weights=[0.2,0.1,0.7])
+
+cv_results = cross_val_score(vote_regressor2, X_train, y_train, cv=5, scoring='neg_mean_squared_error')
+np.sqrt(np.abs(cv_results.mean()))
+vote_regressor2.fit(X, y)
+y_pred_regressor = vote_regressor2.predict(label_test)
