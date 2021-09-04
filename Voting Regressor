@@ -1,3 +1,6 @@
+#-------------------------------------------------------------
+# Voting Ensemble for Regression
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 vote_regressor = VotingRegressor([('xgboost', XGB_model), ('lightGBM', lgbm_model), ('catboost',Catboost_model)], 
                         weights=[0.6,0.35,0.05])
 
@@ -13,3 +16,27 @@ cv_results = cross_val_score(vote_regressor2, X_train, y_train, cv=5, scoring='n
 np.sqrt(np.abs(cv_results.mean()))
 vote_regressor2.fit(X, y)
 y_pred_regressor = vote_regressor2.predict(label_test)
+
+
+
+#-------------------------------------------------------------
+# Voting Ensemble for Classification
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+from sklearn.linear_model import LogisticRegression
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.svm import SVC
+from sklearn.ensemble import VotingClassifier
+
+kfold = model_selection.KFold(n_splits=10, random_state=seed)
+# create the sub models
+estimators = []
+model1 = LogisticRegression()
+estimators.append(('logistic', model1))
+model2 = DecisionTreeClassifier()
+estimators.append(('cart', model2))
+model3 = SVC()
+estimators.append(('svm', model3))
+# create the ensemble model
+ensemble = VotingClassifier(estimators)
+results = model_selection.cross_val_score(ensemble, X, Y, cv=kfold)
+print(results.mean())
